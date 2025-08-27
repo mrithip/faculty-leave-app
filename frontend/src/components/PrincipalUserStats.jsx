@@ -5,16 +5,22 @@ function PrincipalUserStats({ userStats }) {
     const [sortOrder, setSortOrder] = useState('desc');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Log userStats and searchTerm to debug
+    console.log("PrincipalUserStats - userStats:", userStats);
+    console.log("PrincipalUserStats - searchTerm:", searchTerm);
+
     if (!userStats || userStats.length === 0) {
         return <div className="text-center py-8 text-gray-500">No user statistics available.</div>;
     }
 
     // Filter and sort users
-    const filteredUsers = userStats.filter(user =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredUsers = userStats.filter(user => {
+        const usernameMatch = user.username && typeof user.username === 'string' && user.username.toLowerCase().includes(searchTerm.toLowerCase());
+        const departmentMatch = user.department && typeof user.department === 'string' && user.department.toLowerCase().includes(searchTerm.toLowerCase());
+        const roleMatch = user.role && typeof user.role === 'string' && user.role.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        return usernameMatch || departmentMatch || roleMatch;
+    });
 
     const sortedUsers = [...filteredUsers].sort((a, b) => {
         const aValue = a[sortField];
