@@ -127,7 +127,7 @@ function HODDashboard() {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     {activeTab === 'approval' && <HODLeaveApproval leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'staff' && <HODStaffList staffList={staffList} />}
-                    {activeTab === 'calendar' && <HODLeaveCalendar leaves={leaves} onRefresh={fetchData} />}
+                    {activeTab === 'calendar' && <HODLeaveCalendar onRefresh={fetchData} />}
                     {activeTab === 'history' && <HODLeaveHistory leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'stats' && <HODLeaveStats stats={stats} />}
                     {activeTab === 'request' && <HODLeaveForm onLeaveSubmit={fetchData} balance={balance} />}

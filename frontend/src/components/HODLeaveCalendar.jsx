@@ -3,28 +3,61 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import axios from 'axios';
 
-function HODLeaveCalendar({ leaves, onRefresh }) {
+function HODLeaveCalendar({ onRefresh }) {
     const [events, setEvents] = useState([]);
 
+    const fetchCalendarData = async () => {
+        try {
+            const response = await axios.get('/api/hod/leaves/department_calendar/', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+            });
+            console.log("Calendar API Response:", response.data); // Added console log
+            const calendarEvents = response.data.map(leave => {
+                // Ensure dates are valid Date objects
+                // The backend returns ISO strings like "2025-08-27T21:00:00+00:00"
+                // The Date constructor should handle this format.
+                const startDate = new Date(leave.start);
+                const endDate = leave.end ? new Date(leave.end) : null;
+
+                // Check if dates are valid
+                if (isNaN(startDate.getTime())) {
+                    console.error("Invalid start date found in leave data:", leave);
+                    return null; // Skip this event if start date is invalid
+                }
+                if (endDate && isNaN(endDate.getTime())) {
+                    console.error("Invalid end date found in leave data:", leave);
+                    return null; // Skip this event if end date is invalid
+                }
+
+                return {
+                    id: leave.id,
+                    title: leave.title, // Use the title directly from backend response
+                    start: startDate,
+                    end: endDate,
+                    backgroundColor: getEventColor(leave.status),
+                    borderColor: getEventColor(leave.status),
+                    extendedProps: {
+                        staffName: leave.staff_name || leave.user?.username,
+                        leaveType: leave.type, // Use 'type' from backend response
+                        status: leave.status,
+                        reason: leave.reason || '',
+                        department: leave.department || ''
+                    }
+                };
+            }).filter(event => event !== null); // Filter out any null events due to invalid dates
+
+            setEvents(calendarEvents);
+            console.log("Events state after setEvents:", calendarEvents); // Log the state after setting it
+        } catch (error) {
+            console.error("Error fetching calendar data:", error);
+        }
+    };
+
     useEffect(() => {
-        const calendarEvents = leaves.map(leave => ({
-            id: leave.id,
-            title: `${leave.staff_name || leave.user?.username} - ${leave.leave_type}`,
-            start: leave.start_date,
-            end: leave.end_date,
-            backgroundColor: getEventColor(leave.status),
-            borderColor: getEventColor(leave.status),
-            extendedProps: {
-                staffName: leave.staff_name || leave.user?.username,
-                leaveType: leave.leave_type,
-                status: leave.status,
-                reason: leave.reason || '',
-                department: leave.department || ''
-            }
-        }));
-        setEvents(calendarEvents);
-    }, [leaves]);
+        fetchCalendarData();
+    }, []);
 
     const getEventColor = (status) => {
         const colorMap = {
@@ -54,7 +87,7 @@ function HODLeaveCalendar({ leaves, onRefresh }) {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Department Leave Calendar</h2>
                 <button 
-                    onClick={onRefresh} 
+                    onClick={fetchCalendarData} 
                     className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
                 >
                     Refresh

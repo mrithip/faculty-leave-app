@@ -35,6 +35,16 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
+
+    @action(detail=False, methods=['get'])
+    def my_leaves(self, request):
+        """Get HOD's own leave requests"""
+        if request.user.role != 'HOD':
+            return Response({'error': 'Only HOD can access this'}, status=403)
+        
+        leaves = LeaveRequest.objects.filter(user=request.user).order_by('-created_at')
+        serializer = LeaveRequestSerializer(leaves, many=True)
+        return Response(serializer.data)
         
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
@@ -124,7 +134,11 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only HOD can view department calendar'}, status=status.HTTP_403_FORBIDDEN)
         
         staff_in_dept = User.objects.filter(department=request.user.department, role='STAFF')
-        leaves = LeaveRequest.objects.filter(user__in=staff_in_dept)
+        hod = request.user
+        
+        # Combine staff and HOD for filtering leaves
+        users_in_dept = list(staff_in_dept) + [hod]
+        leaves = LeaveRequest.objects.filter(user__in=users_in_dept)
         
         events = []
         for leave in leaves:
