@@ -41,13 +41,24 @@ class PrincipalLeaveViewSet(viewsets.ModelViewSet):
         # Deduct from leave balance for approved leaves
         if leave.leave_type in ['EARNED', 'CASUAL', 'MEDICAL']:
             balance, created = LeaveBalance.objects.get_or_create(user=leave.user)
+            # Ensure earned leave balance is up-to-date, regardless of whether it was just created
+
             if leave.leave_type == 'EARNED':
-                balance.earned_leave -= 1
+                if balance.earned_leave > 0:
+                    balance.earned_leave -= 1
+                    balance.save() # Save the deduction
+                else:
+                    return Response({'error': 'Insufficient Earned Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
             elif leave.leave_type == 'CASUAL':
-                balance.casual_leave -= 1
+                if balance.casual_leave > 0:
+                    balance.casual_leave -= 1
+                else:
+                    return Response({'error': 'Insufficient Casual Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
             elif leave.leave_type == 'MEDICAL':
-                balance.medical_leave -= 1
-            balance.save()
+                if balance.medical_leave > 0:
+                    balance.medical_leave -= 1
+                else:
+                    return Response({'error': 'Insufficient Medical Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
         
         leave.save()
         return Response({'status': 'Leave approved by Principal'})
@@ -73,7 +84,11 @@ class PrincipalLeaveViewSet(viewsets.ModelViewSet):
         # Total statistics
         total_leaves = LeaveRequest.objects.count()
         approved_leaves = LeaveRequest.objects.filter(status='APPROVED').count()
-        pending_leaves = LeaveRequest.objects.filter(status='PENDING').count()
+        # Correctly count pending leaves considering both PENDING_PRINCIPAL and PENDING for HODs
+        pending_leaves = LeaveRequest.objects.filter(
+            Q(status='PENDING_PRINCIPAL') |
+            (Q(status='PENDING') & Q(user__role='HOD'))
+        ).count()
         rejected_leaves = LeaveRequest.objects.filter(status='REJECTED').count()
         
         # Department-wise statistics
@@ -128,7 +143,10 @@ class PrincipalLeaveViewSet(viewsets.ModelViewSet):
                 'role': user.role,
                 'total_leaves': leaves.count(),
                 'approved_leaves': leaves.filter(status='APPROVED').count(),
-                'pending_leaves': leaves.filter(status='PENDING').count(),
+                'pending_leaves': leaves.filter(
+                    Q(status='PENDING_PRINCIPAL') |
+                    (Q(status='PENDING') & Q(user__role='HOD'))
+                ).count(),
                 'rejected_leaves': leaves.filter(status='REJECTED').count()
             })
         
@@ -141,9 +159,11 @@ class PrincipalLeaveViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only Principal can view pending approvals'}, status=status.HTTP_403_FORBIDDEN)
         
         # For staff: need HOD approval first, for HOD: directly to principal
+        # Staff leaves that are pending HOD approval should also be shown to the principal if HOD has approved.
         pending_leaves = LeaveRequest.objects.filter(
             Q(status='PENDING_PRINCIPAL') |
-            (Q(status='PENDING') & Q(user__role='HOD'))
+            (Q(status='PENDING') & Q(user__role='HOD')) |
+            (Q(status='PENDING') & Q(user__role='STAFF') & Q(hod_approval=True))
         ).order_by('-created_at')
         
         serializer = self.get_serializer(pending_leaves, many=True)
@@ -170,7 +190,10 @@ class PrincipalLeaveViewSet(viewsets.ModelViewSet):
                     'hod_count': hod_count,
                     'total_leaves': leaves.count(),
                     'approved_leaves': leaves.filter(status='APPROVED').count(),
-                    'pending_leaves': leaves.filter(status='PENDING').count(),
+                    'pending_leaves': leaves.filter(
+                        Q(status='PENDING_PRINCIPAL') |
+                        (Q(status='PENDING') & Q(user__role='HOD'))
+                    ).count(),
                     'rejected_leaves': leaves.filter(status='REJECTED').count()
                 })
         

@@ -7,15 +7,20 @@ function PrincipalLeaveApproval({ leaves, onRefresh }) {
     const handleApprove = async (leaveId) => {
         try {
             const token = localStorage.getItem('access_token');
-            await axios.post(`/api/principal/leaves/${leaveId}/approve/`, 
+            await axios.post(`/api/principal/leaves/${leaveId}/approve/`,
                 { comment: comments[leaveId] || '' },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            // Clear comment for this leave ID if it exists
             setComments(prev => ({ ...prev, [leaveId]: '' }));
             onRefresh();
         } catch (error) {
             console.error('Error approving leave:', error);
-            alert('Failed to approve leave. Please try again.');
+            if (error.response && error.response.data && error.response.data.error) {
+                alert(`Failed to approve leave: ${error.response.data.error}`);
+            } else {
+                alert('Failed to approve leave. Please try again.');
+            }
         }
     };
 
