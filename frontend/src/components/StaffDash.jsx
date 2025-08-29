@@ -5,9 +5,10 @@ import LeaveForm from './LeaveForm';
 import LeaveCalendar from './LeaveCalendar';
 import LeaveHistory from './LeaveHistory';
 import LeaveStats from './LeaveStats';
+import StaffLeaveBalanceTable from './StaffLeaveBalanceTable'; // Import the new component
 
 function StaffDashboard() {
-    const [activeTab, setActiveTab] = useState('calendar');
+    const [activeTab, setActiveTab] = useState('balance'); // Set default tab to 'balance'
     const [leaves, setLeaves] = useState([]);
     const [balance, setBalance] = useState(null);
     const [stats, setStats] = useState(null);
@@ -96,30 +97,34 @@ function StaffDashboard() {
             </div>
 
             <div className="container mx-auto px-6 py-4">
-                <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-6">
-                    {['calendar', 'form', 'history', 'stats'].map(tab => (
+                <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-6 overflow-x-auto">
+                    {['calendar','balance', 'form', 'history', 'stats'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`flex items-center px-4 py-2 rounded-md transition-colors ${
+                            className={`flex items-center px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
                                 activeTab === tab
                                     ? 'bg-blue-600 text-white'
                                     : 'text-gray-600 hover:bg-gray-100'
                             }`}
                         >
                             <span className="mr-2">
+                                
                                 {tab === 'calendar' && '📅'}
+                                {tab === 'balance' && '💰'}
                                 {tab === 'form' && '➕'}
                                 {tab === 'history' && '📋'}
                                 {tab === 'stats' && '📊'}
                             </span>
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            {tab === 'balance' ? 'Leave Balance' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>
                     ))}
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
+                    
                     {activeTab === 'calendar' && <LeaveCalendar leaves={leaves} onRefresh={fetchData} />}
+                    {activeTab === 'balance' && <StaffLeaveBalanceTable balance={balance} />}
                     {activeTab === 'form' && <LeaveForm onLeaveSubmit={fetchData} balance={balance} />}
                     {activeTab === 'history' && <LeaveHistory leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'stats' && <LeaveStats stats={stats} balance={balance} />}

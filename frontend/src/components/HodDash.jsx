@@ -38,13 +38,24 @@ function HODDashboard() {
             const staffResponse = await axios.get('/api/hod/leaves/staff_list/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setStaffList(staffResponse.data);
+            const staffData = staffResponse.data;
 
             // Fetch HOD's own leave balance
-            const balanceResponse = await axios.get('/api/leave/balance/', {
+            const balanceResponse = await axios.get('/api/hod/leaves/my_balance/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setBalance(balanceResponse.data);
+            const hodBalance = balanceResponse.data;
+
+            // Create a HOD entry similar to staff entries
+            const hodEntry = {
+                id: user.id,
+                username: `${user.username} (HOD)`,
+                email: user.email,
+                leave_balance: hodBalance
+            };
+
+            // Combine HOD's balance with staff list, placing HOD at the top
+            setStaffList([hodEntry, ...staffData]);
             
         } catch (error) {
             console.error('Error fetching data:', error);
