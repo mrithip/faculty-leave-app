@@ -17,6 +17,8 @@ function HODStaffList({ staffList }) {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Earned Leave</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Casual Leave</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Medical Leave</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Night Work Credits</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Compensatory Leave</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -49,6 +51,24 @@ function HODStaffList({ staffList }) {
                                             'bg-red-100 text-red-800'
                                         }`}>
                                             {staff.leave_balance.medical_leave} days
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            staff.leave_balance.night_work_credits > 5 ? 'bg-green-100 text-green-800' : 
+                                            staff.leave_balance.night_work_credits > 2 ? 'bg-amber-100 text-amber-800' : 
+                                            'bg-red-100 text-red-800'
+                                        }`}>
+                                            {staff.leave_balance.night_work_credits} credits
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            staff.leave_balance.compensatory_leave > 5 ? 'bg-green-100 text-green-800' : 
+                                            staff.leave_balance.compensatory_leave > 2 ? 'bg-amber-100 text-amber-800' : 
+                                            'bg-red-100 text-red-800'
+                                        }`}>
+                                            {staff.leave_balance.compensatory_leave} days
                                         </span>
                                     </td>
                                 </tr>

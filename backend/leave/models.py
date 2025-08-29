@@ -95,7 +95,7 @@ class LeaveBalance(models.Model):
     earned_leave = models.PositiveIntegerField(default=0)  # 2 days per month
     casual_leave = models.PositiveIntegerField(default=12)  # Example: 12 days per year
     medical_leave = models.PositiveIntegerField(default=12)  # Example: 12 days per year
-    night_work_credits = models.PositiveIntegerField(default=0)  # 3 night works = 1 earned leave
+    night_work_credits = models.PositiveIntegerField(default=0)  # Count of approved night work records (3 records = 1 earned leave)
     compensatory_leave = models.PositiveIntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
     
@@ -109,6 +109,28 @@ class LeaveBalance(models.Model):
         self.earned_leave = months_worked * 2
         self.save()
 
+    @classmethod
+    def recalculate_night_work_balance(cls, user):
+        """
+        Recalculates night_work_credits and earned_leave for a specific user
+        based on all approved NightWorkRecords.
+        """
+        balance, created = cls.objects.get_or_create(user=user)
+
+        old_earned_leaves_from_night_work = balance.night_work_credits // 3
+
+        # Count all approved NightWorkRecord instances for the user
+        approved_night_works_count = NightWorkRecord.objects.filter(
+            user=user, approved=True
+        ).count()
+        balance.night_work_credits = approved_night_works_count
+
+        new_earned_leaves_from_night_work = balance.night_work_credits // 3
+
+        balance.earned_leave += (new_earned_leaves_from_night_work - old_earned_leaves_from_night_work)
+        balance.earned_leave = max(0, balance.earned_leave) # Ensure earned_leave doesn't go below zero
+        balance.save()
+
 class NightWorkRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="night_works")
     date = models.DateField()
@@ -118,16 +140,11 @@ class NightWorkRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.approved:
-            # Update night work credits (3 nights = 1 earned leave)
-            balance, created = LeaveBalance.objects.get_or_create(user=self.user)
-            balance.night_work_credits += self.hours
-            if balance.night_work_credits >= 3:
-                balance.earned_leave += balance.night_work_credits // 3
-                balance.night_work_credits = balance.night_work_credits % 3
-            balance.save()
-    
+        super().save(*args, **kwargs) # Save the instance first
+
+        # Always trigger recalculation after a NightWorkRecord is saved
+        LeaveBalance.recalculate_night_work_balance(user=self.user)
+
     def __str__(self):
         return f"{self.user.username} - Night Work - {self.date}"
 

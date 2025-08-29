@@ -183,12 +183,14 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
                 'id': staff.id,
                 'username': staff.username,
                 'email': staff.email,
-                'leave_balance': {
-                    'earned_leave': balance.earned_leave,
-                    'casual_leave': balance.casual_leave,
-                    'medical_leave': balance.medical_leave
-                }
-            })
+                    'leave_balance': {
+                        'earned_leave': balance.earned_leave,
+                        'casual_leave': balance.casual_leave,
+                        'medical_leave': balance.medical_leave,
+                        'night_work_credits': balance.night_work_credits,
+                        'compensatory_leave': balance.compensatory_leave,
+                    }
+                })
         
         return Response(staff_data)
 
