@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'leave',
     'staff',
     'hod',
-    'principal'
+    'principal',
+    'pdfapp',
 ]
 
 AUTH_USER_MODEL = 'users.User'

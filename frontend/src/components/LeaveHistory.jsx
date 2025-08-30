@@ -27,6 +27,7 @@ function LeaveHistory({ leaves, onRefresh }) {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Download</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -42,6 +43,16 @@ function LeaveHistory({ leaves, onRefresh }) {
                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[leave.status]}`}>
                                         {leave.status}
                                     </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <a 
+                                        href={`http://localhost:8000/api/pdf/generate-pdf/${leave.id}/`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                                    >
+                                        Download
+                                    </a>
                                 </td>
                             </tr>
                         ))}

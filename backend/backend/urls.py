@@ -26,5 +26,6 @@ urlpatterns = [
     path('api/leave/', include('leave.urls')), 
     path('api/staff/', include('staff.urls')),
     path('api/hod/', include('hod.urls')), 
-    path('api/principal/', include('principal.urls')), 
+    path('api/principal/', include('principal.urls')),
+    path('api/pdf/', include('pdfapp.urls')),
 ]
