@@ -29,7 +29,10 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
         return LeaveRequest.objects.none()
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        if self.request.user.role == 'HOD':
+            serializer.save(user=self.request.user, status='PENDING_PRINCIPAL')
+        else:
+            serializer.save(user=self.request.user)
     
     @action(detail=True, methods=['post'])
     def approve_hod(self, request, pk=None):

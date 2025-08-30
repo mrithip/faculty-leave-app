@@ -61,11 +61,31 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
         
         leave.hod_approval = True
         leave.hod_approval_date = timezone.now()
-        
-        leave.status = 'PENDING_PRINCIPAL'
-        
+
+        # Deduct from leave balance for approved leaves (staff only)
+        if leave.leave_type in ['EARNED', 'CASUAL', 'MEDICAL']:
+            balance, created = LeaveBalance.objects.get_or_create(user=leave.user)
+
+            if leave.leave_type == 'EARNED':
+                if balance.earned_leave > 0:
+                    balance.earned_leave -= 1
+                else:
+                    return Response({'error': 'Insufficient Earned Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
+            elif leave.leave_type == 'CASUAL':
+                if balance.casual_leave > 0:
+                    balance.casual_leave -= 1
+                else:
+                    return Response({'error': 'Insufficient Casual Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
+            elif leave.leave_type == 'MEDICAL':
+                if balance.medical_leave > 0:
+                    balance.medical_leave -= 1
+                else:
+                    return Response({'error': 'Insufficient Medical Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
+            balance.save() # Save the deduction
+
+        leave.status = 'PENDING_PRINCIPAL' # HOD approval moves to PENDING_PRINCIPAL
         leave.save()
-        
+
         # Record HOD action
         HODAction.objects.create(
             hod=request.user,
@@ -73,7 +93,7 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
             action_type='APPROVE',
             comment=request.data.get('comment', '')
         )
-        
+
         return Response({'status': 'Leave approved by HOD'})
     
     @action(detail=True, methods=['post'])
@@ -113,7 +133,7 @@ class HODLeaveViewSet(viewsets.ModelViewSet):
         
         total_leaves = leaves.count()
         approved_leaves = leaves.filter(status='APPROVED').count()
-        pending_leaves = leaves.filter(status='PENDING').count()
+        pending_leaves = leaves.filter(status='PENDING').count() # HOD only sees pending staff leaves
         rejected_leaves = leaves.filter(status='REJECTED').count()
         
         # Staff count by department
