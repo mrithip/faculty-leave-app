@@ -5,10 +5,10 @@ import LeaveForm from './LeaveForm';
 import LeaveCalendar from './LeaveCalendar';
 import LeaveHistory from './LeaveHistory';
 import LeaveStats from './LeaveStats';
-import StaffLeaveBalanceTable from './StaffLeaveBalanceTable'; // Import the new component
+import StaffLeaveBalanceTable from './StaffLeaveBalanceTable';
 
 function StaffDashboard() {
-    const [activeTab, setActiveTab] = useState('balance'); // Set default tab to 'balance'
+    const [activeTab, setActiveTab] = useState('balance');
     const [leaves, setLeaves] = useState([]);
     const [balance, setBalance] = useState(null);
     const [stats, setStats] = useState(null);
@@ -20,19 +20,16 @@ function StaffDashboard() {
         try {
             const token = localStorage.getItem('access_token');
             
-            // Fetch leaves
             const leavesResponse = await axios.get('/api/staff/leaves/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLeaves(leavesResponse.data);
             
-            // Fetch balance
             const balanceResponse = await axios.get('/api/staff/leaves/balance/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBalance(balanceResponse.data);
             
-            // Fetch stats
             const statsResponse = await axios.get('/api/staff/leaves/stats/', {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -68,27 +65,27 @@ function StaffDashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading dashboard...</p>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center p-6 bg-white rounded-lg shadow-lg">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-lg text-gray-700 font-medium">Loading dashboard data...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="bg-white shadow-sm">
-                <div className="container mx-auto px-6 py-4">
+        <div className="min-h-screen bg-gray-50">
+            <div className="bg-white shadow-md border-b border-gray-200">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-800">Staff Dashboard</h1>
-                            <p className="text-gray-600">Welcome, {user.username} ({user.department})</p>
+                            <h1 className="text-3xl font-extrabold text-gray-900">Staff Dashboard</h1>
+                            <p className="text-gray-600 text-lg mt-1">Welcome, <span className="font-semibold">{user.username}</span> (<span className="font-medium">{user.department}</span>)</p>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                            className="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out font-medium shadow-md"
                         >
                             Logout
                         </button>
@@ -96,24 +93,24 @@ function StaffDashboard() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-6 py-4">
-                <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-6 overflow-x-auto">
-                    {['calendar','balance', 'form', 'history', 'stats'].map(tab => (
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex flex-wrap justify-center md:justify-start space-x-2 sm:space-x-4 bg-white rounded-xl p-2 shadow-lg mb-6 overflow-x-auto">
+                    {['calendar', 'balance', 'form', 'history', 'stats'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`flex items-center px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
-                                activeTab === tab
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`flex items-center px-5 py-2.5 rounded-lg transition-all duration-200 ease-in-out whitespace-nowrap text-lg font-medium
+                                ${
+                                    activeTab === tab
+                                        ? 'bg-blue-600 text-white shadow-md'
+                                        : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+                                }`}
                         >
-                            <span className="mr-2">
-                                
+                            <span className="mr-2 text-xl">
                                 {tab === 'calendar' && '📅'}
                                 {tab === 'balance' && '💰'}
-                                {tab === 'form' && '➕'}
-                                {tab === 'history' && '📋'}
+                                {tab === 'form' && '📝'}
+                                {tab === 'history' && '📜'}
                                 {tab === 'stats' && '📊'}
                             </span>
                             {tab === 'balance' ? 'Leave Balance' : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -121,8 +118,7 @@ function StaffDashboard() {
                     ))}
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    
+                <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200">
                     {activeTab === 'calendar' && <LeaveCalendar leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'balance' && <StaffLeaveBalanceTable balance={balance} />}
                     {activeTab === 'form' && <LeaveForm onLeaveSubmit={fetchData} balance={balance} />}

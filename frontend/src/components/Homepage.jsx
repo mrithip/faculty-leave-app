@@ -5,31 +5,31 @@ function HomePage() {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-lg text-center w-96">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
+            <div className="bg-white p-10 rounded-xl shadow-2xl text-center w-full max-w-md border border-gray-200">
+                <h1 className="text-4xl font-extrabold text-gray-900 mb-3 leading-tight">
                     Faculty Leave Management
                 </h1>
-                <p className="text-gray-600 mb-8">Select your role to login</p>
+                <p className="text-gray-600 text-lg mb-8">Select your role to proceed to login</p>
                 
-                <div className="space-y-4">
+                <div className="space-y-5">
                     <button 
                         onClick={() => navigate('/login/STAFF')}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+                        className="w-full bg-blue-700 text-white py-3.5 rounded-lg hover:bg-blue-800 transition duration-300 ease-in-out font-semibold text-lg shadow-md hover:shadow-lg transform hover:-translate-y-1"
                     >
                         Staff Login
                     </button>
                     
                     <button 
                         onClick={() => navigate('/login/HOD')}
-                        className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                        className="w-full bg-green-700 text-white py-3.5 rounded-lg hover:bg-green-800 transition duration-300 ease-in-out font-semibold text-lg shadow-md hover:shadow-lg transform hover:-translate-y-1"
                     >
                         HOD Login
                     </button>
                     
                     <button 
                         onClick={() => navigate('/login/PRINCIPAL')}
-                        className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
+                        className="w-full bg-purple-700 text-white py-3.5 rounded-lg hover:bg-purple-800 transition duration-300 ease-in-out font-semibold text-lg shadow-md hover:shadow-lg transform hover:-translate-y-1"
                     >
                         Principal Login
                     </button>

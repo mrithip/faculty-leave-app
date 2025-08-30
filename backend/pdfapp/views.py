@@ -48,7 +48,6 @@ def generate_leave_pdf(request, leave_id):
     story = []
 
     # Add a test paragraph to check if anything renders
-    story.append(Paragraph("--- Test PDF Content ---", body_text_centered))
     story.append(Spacer(1, 0.2 * inch))
 
     # Title

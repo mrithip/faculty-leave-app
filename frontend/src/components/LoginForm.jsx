@@ -101,45 +101,47 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <div className="text-center mb-6">
-                    <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <div className="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border border-gray-200">
+                <div className="text-center mb-8">
+                    <div className={`w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg
                         ${role === 'STAFF' ? 'bg-blue-600' : ''}
                         ${role === 'HOD' ? 'bg-green-600' : ''}
                         ${role === 'PRINCIPAL' ? 'bg-purple-600' : ''}`}>
                         {role?.charAt(0)}
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
                         {roleTitles[role]} Login
                     </h1>
-                    <p className="text-gray-600">Enter your credentials to continue</p>
+                    <p className="text-gray-600 text-md">Enter your credentials to access your dashboard</p>
                 </div>
 
                 <form onSubmit={handleLogin}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <div className="mb-5">
+                        <label className="block text-gray-800 text-sm font-semibold mb-2" htmlFor="username">
                             Username
                         </label>
                         <input
                             type="text"
+                            id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-500 transition duration-200 ease-in-out"
                             placeholder="Enter your username"
                             required
                         />
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <div className="mb-7">
+                        <label className="block text-gray-800 text-sm font-semibold mb-2" htmlFor="password">
                             Password
                         </label>
                         <input
                             type="password"
+                            id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-500 transition duration-200 ease-in-out"
                             placeholder="Enter your password"
                             required
                         />
@@ -148,20 +150,19 @@ function LoginForm() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                        className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-800 transition duration-200 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
 
-                <div className="mt-4 text-center">
+                <div className="mt-6 text-center">
                     <button 
                         onClick={() => navigate('/')}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline transition duration-200 ease-in-out"
                     >
                         ← Back to Role Selection
                     </button>
-                    
                 </div>
             </div>
         </div>
