@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Import toast
 
 function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { role } = useParams();
@@ -13,7 +13,6 @@ function LoginForm() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
@@ -25,7 +24,7 @@ function LoginForm() {
 
             // Check if the logged-in user matches the selected role
             if (user.role !== role) {
-                setError(`This login is for ${role} users only. You are a ${user.role}.`);
+                toast.error(`This login is for ${role} users only. You are a ${user.role}.`);
                 setLoading(false);
                 return;
             }
@@ -35,15 +34,53 @@ function LoginForm() {
             localStorage.setItem('refresh_token', refresh);
             localStorage.setItem('user', JSON.stringify(user));
 
-            // Redirect based on role
+            // Fetch and display notifications based on role
+            const token = access; // Use the newly obtained access token
             switch (user.role) {
                 case 'STAFF':
+                    try {
+                        const leavesResponse = await axios.get('/api/staff/leaves/', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const recentLeave = leavesResponse.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+                        if (recentLeave) {
+                            toast.info(`Your most recent leave (${recentLeave.leave_type}) status: ${recentLeave.status}`);
+                        } else {
+                            toast.info('Welcome! You have no recent leave requests.');
+                        }
+                    } catch (notificationError) {
+                        console.error('Error fetching staff leave status for notification:', notificationError);
+                    }
                     navigate('/staff/dashboard');
                     break;
                 case 'HOD':
+                    try {
+                        const deptStatsResponse = await axios.get('/api/hod/leaves/department_stats/', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (deptStatsResponse.data.pending_leaves > 0) {
+                            toast.warn(`You have ${deptStatsResponse.data.pending_leaves} new leave requests pending approval.`);
+                        } else {
+                            toast.info('Welcome HOD! No new leave requests pending in your department.');
+                        }
+                    } catch (notificationError) {
+                        console.error('Error fetching HOD department stats for notification:', notificationError);
+                    }
                     navigate('/hod/dashboard');
                     break;
                 case 'PRINCIPAL':
+                    try {
+                        const pendingApprovalsResponse = await axios.get('/api/principal/leaves/pending_approvals/', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (pendingApprovalsResponse.data.length > 0) {
+                            toast.warn(`You have ${pendingApprovalsResponse.data.length} new leave requests pending your approval.`);
+                        } else {
+                            toast.info('Welcome Principal! No new leave requests pending your approval.');
+                        }
+                    } catch (notificationError) {
+                        console.error('Error fetching Principal pending approvals for notification:', notificationError);
+                    }
                     navigate('/principal/dashboard');
                     break;
                 default:
@@ -51,7 +88,8 @@ function LoginForm() {
             }
 
         } catch (error) {
-            setError(error.response?.data?.detail || 'Login failed. Please check your credentials.');
+            toast.error(error.response?.data?.detail || 'Login failed. Please check your credentials.'); // Use toast for error
+        } finally {
             setLoading(false);
         }
     };
@@ -77,12 +115,6 @@ function LoginForm() {
                     </h1>
                     <p className="text-gray-600">Enter your credentials to continue</p>
                 </div>
-
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
 
                 <form onSubmit={handleLogin}>
                     <div className="mb-4">

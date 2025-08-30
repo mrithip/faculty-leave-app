@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast
 
 function PrincipalLeaveApproval({ leaves, onRefresh }) {
     const [comments, setComments] = useState({});
@@ -14,13 +15,10 @@ function PrincipalLeaveApproval({ leaves, onRefresh }) {
             // Clear comment for this leave ID if it exists
             setComments(prev => ({ ...prev, [leaveId]: '' }));
             onRefresh();
+            toast.success('Leave request approved successfully!'); // Use toast for success
         } catch (error) {
             console.error('Error approving leave:', error);
-            if (error.response && error.response.data && error.response.data.error) {
-                alert(`Failed to approve leave: ${error.response.data.error}`);
-            } else {
-                alert('Failed to approve leave. Please try again.');
-            }
+            toast.error(error.response?.data?.error || 'Failed to approve leave. Please try again.'); // Use toast for error
         }
     };
 
@@ -33,9 +31,10 @@ function PrincipalLeaveApproval({ leaves, onRefresh }) {
             );
             setComments(prev => ({ ...prev, [leaveId]: '' }));
             onRefresh();
+            toast.info('Leave request rejected.'); // Use toast for info
         } catch (error) {
             console.error('Error rejecting leave:', error);
-            alert('Failed to reject leave. Please try again.');
+            toast.error(error.response?.data?.detail || 'Failed to reject leave. Please try again.'); // Use toast for error
         }
     };
 

@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast
 
 function LeaveForm({ onLeaveSubmit, balance }) {
     const [formData, setFormData] = useState({
         leave_type: '', start_date: '', end_date: '', reason: '', is_hourly: false, hours: 1
     });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
         setLoading(true);
 
         try {
             const token = localStorage.getItem('access_token');
-            const response = await axios.post('/api/staff/leaves/', formData, {
+            await axios.post('/api/staff/leaves/', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            setSuccess('Leave request submitted successfully!');
+            toast.success('Leave request submitted successfully!'); // Use toast for success
             setFormData({ leave_type: '', start_date: '', end_date: '', reason: '', is_hourly: false, hours: 1 });
             if (onLeaveSubmit) onLeaveSubmit();
         } catch (error) {
-            setError(error.response?.data?.detail || 'Failed to submit leave request');
+            toast.error(error.response?.data?.detail || 'Failed to submit leave request'); // Use toast for error
         } finally {
             setLoading(false);
         }
@@ -54,9 +51,6 @@ function LeaveForm({ onLeaveSubmit, balance }) {
         <div>
             <h2 className="text-xl font-semibold mb-4">Request Leave</h2>
             
-            {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-            {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Leave Type *</label>

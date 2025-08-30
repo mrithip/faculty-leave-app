@@ -6,6 +6,8 @@ import HodDash from "./components/HodDash";
 import PrincipalDash from "./components/PrincipalDash";
 import TopBanner from "./components/TopBanner"; // Import TopBanner
 import Footer from "./components/Footer";     // Import Footer
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
 
 function App() {
   return (
@@ -28,6 +30,7 @@ function App() {
           </Routes>
         </main>
         <Footer /> {/* Render Footer below all routes */}
+        <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       </div>
     </Router>
   );

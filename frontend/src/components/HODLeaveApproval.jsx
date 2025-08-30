@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast
 
 function HODLeaveApproval({ leaves, onRefresh }) {
     const [comments, setComments] = useState({});
@@ -13,9 +14,10 @@ function HODLeaveApproval({ leaves, onRefresh }) {
             );
             setComments(prev => ({ ...prev, [leaveId]: '' }));
             onRefresh();
+            toast.success('Leave request approved successfully!'); // Use toast for success
         } catch (error) {
             console.error('Error approving leave:', error);
-            alert('Failed to approve leave. Please try again.');
+            toast.error(error.response?.data?.detail || 'Failed to approve leave. Please try again.'); // Use toast for error
         }
     };
 
@@ -28,9 +30,10 @@ function HODLeaveApproval({ leaves, onRefresh }) {
             );
             setComments(prev => ({ ...prev, [leaveId]: '' }));
             onRefresh();
+            toast.info('Leave request rejected.'); // Use toast for info
         } catch (error) {
             console.error('Error rejecting leave:', error);
-            alert('Failed to reject leave. Please try again.');
+            toast.error(error.response?.data?.detail || 'Failed to reject leave. Please try again.'); // Use toast for error
         }
     };
 
