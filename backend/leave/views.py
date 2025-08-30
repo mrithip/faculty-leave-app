@@ -8,6 +8,9 @@ from .serializers import (
     NightWorkRecordSerializer, CompensatoryWorkSerializer
 )
 from django.contrib.auth import get_user_model
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -101,7 +104,11 @@ class LeaveBalanceViewSet(viewsets.ReadOnlyModelViewSet):
             staff_in_dept = User.objects.filter(department=self.request.user.department, role='STAFF')
             return LeaveBalance.objects.filter(user__in=staff_in_dept)
         elif self.request.user.role == 'PRINCIPAL':
-            return LeaveBalance.objects.all()
+            queryset = LeaveBalance.objects.all()
+            logger.info(f"LeaveBalanceViewSet: Principal fetching all balances. Count: {queryset.count()}")
+            for balance in queryset:
+                logger.info(f"Balance for user {balance.user.username}: Role={balance.user.role}, Dept={balance.user.department}")
+            return queryset
         return LeaveBalance.objects.none()
 
 class NightWorkRecordViewSet(viewsets.ModelViewSet):

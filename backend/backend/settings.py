@@ -178,6 +178,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'leave': { # Add logger for the leave app
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',

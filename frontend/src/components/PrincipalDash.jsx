@@ -5,6 +5,7 @@ import PrincipalLeaveApproval from './PrincipalLeaveApproval';
 import PrincipalStats from './PrincipalStats';
 import PrincipalUserStats from './PrincipalUserStats';
 import PrincipalDepartmentSummary from './PrincipalDepartmentSummary';
+import PrincipalLeaveBalanceTable from './PrincipalLeaveBalanceTable'; // Import the new component
 
 function PrincipalDashboard() {
     const [activeTab, setActiveTab] = useState('approval');
@@ -96,7 +97,7 @@ function PrincipalDashboard() {
 
             <div className="container mx-auto px-6 py-4">
                 <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm mb-6 overflow-x-auto">
-                    {['approval', 'stats', 'users', 'departments'].map(tab => (
+                    {['approval', 'stats', 'users', 'departments', 'leave_balances'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -111,11 +112,13 @@ function PrincipalDashboard() {
                                 {tab === 'stats' && '📊'}
                                 {tab === 'users' && '👥'}
                                 {tab === 'departments' && '🏢'}
+                                {tab === 'leave_balances' && '💰'}
                             </span>
                             {tab === 'approval' ? 'Approve Leaves' : 
                              tab === 'stats' ? 'Overview Stats' :
                              tab === 'users' ? 'User Statistics' :
-                             'Department Summary'}
+                             tab === 'departments' ? 'Department Summary' :
+                             'Leave Balances'}
                         </button>
                     ))}
                 </div>
@@ -125,6 +128,7 @@ function PrincipalDashboard() {
                     {activeTab === 'stats' && <PrincipalStats stats={stats} />}
                     {activeTab === 'users' && <PrincipalUserStats userStats={userStats} />}
                     {activeTab === 'departments' && <PrincipalDepartmentSummary departmentSummary={departmentSummary} />}
+                    {activeTab === 'leave_balances' && <PrincipalLeaveBalanceTable />}
                 </div>
             </div>
         </div>

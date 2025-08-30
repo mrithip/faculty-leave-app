@@ -18,6 +18,8 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
 
 class LeaveBalanceSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.username', read_only=True)
+    user_role = serializers.CharField(source='user.role', read_only=True)
+    user_department = serializers.CharField(source='user.department', read_only=True)
     
     class Meta:
         model = LeaveBalance
