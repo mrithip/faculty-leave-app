@@ -40,7 +40,10 @@ class LeaveRequest(models.Model):
     principal_approval = models.BooleanField(default=False)
     hod_approval_date = models.DateTimeField(null=True, blank=True)
     principal_approval_date = models.DateTimeField(null=True, blank=True)
-    
+
+    # Substitution link
+    substitution = models.OneToOneField('substitution.Substitution', on_delete=models.SET_NULL, null=True, blank=True, related_name='leave_request')
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -100,9 +100,50 @@ function HODLeaveApproval({ leaves, onRefresh }) {
                                 </div>
                             </div>
                             
+                            {/* Substitution Details - PROMINENT POSITION */}
+                            {leave.substitution_details && (
+                                <div className="mb-4 p-5 bg-emerald-50 border-2 border-emerald-300 rounded-lg shadow-sm">
+                                    <div className="flex items-center mb-3">
+                                        <div className="flex items-center justify-center w-8 h-8 bg-emerald-500 text-white rounded-full mr-3">
+                                            <span className="text-lg font-bold">✓</span>
+                                        </div>
+                                        <h5 className="text-lg font-bold text-emerald-800">Substitution Confirmed</h5>
+                                    </div>
+
+                                    <div className="bg-white p-4 rounded-lg border border-emerald-200">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="flex items-center">
+                                                <span className="text-sm font-semibold text-gray-600 w-24">Substitute:</span>
+                                                <span className="text-green-700 font-bold text-lg ml-2">{leave.substitution_details.substitute_username}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="text-sm font-semibold text-gray-600 w-24">Date:</span>
+                                                <span className="font-semibold text-gray-800 ml-2">{formatDate(leave.substitution_details.date)}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="text-sm font-semibold text-gray-600 w-24">Period:</span>
+                                                <span className="font-semibold text-gray-800 ml-2">{leave.substitution_details.period} • {leave.substitution_details.time}</span>
+                                            </div>
+                                            {leave.substitution_details.class_label && (
+                                                <div className="flex items-center">
+                                                    <span className="text-sm font-semibold text-gray-600 w-24">Subject:</span>
+                                                    <span className="font-semibold text-blue-700 ml-2">{leave.substitution_details.class_label}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {leave.substitution_details.message && (
+                                            <div className="mt-3 pt-3 border-t border-gray-200">
+                                                <p className="text-sm text-gray-600 mb-1">Staff Message:</p>
+                                                <p className="text-gray-800 italic bg-gray-50 p-2 rounded">"{leave.substitution_details.message}"</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="mb-4">
-                                <span className="text-sm font-medium text-gray-700">Reason:</span>
-                                <p className="mt-2 p-3 bg-white rounded-md border border-gray-200 text-gray-800">{leave.reason}</p>
+                                <span className="text-sm font-medium text-gray-700">Leave Reason:</span>
+                                <p className="mt-2 p-3 bg-white rounded-md border border-gray-200 text-gray-800 font-medium">{leave.reason}</p>
                             </div>
                             
                             <div className="mb-5">

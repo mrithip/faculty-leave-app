@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +18,18 @@ class StaffLeaveViewSet(viewsets.ModelViewSet):
         return LeaveRequest.objects.filter(user=self.request.user).order_by('-created_at')
     
     def perform_create(self, serializer):
+        # Validate that substitution is provided and belongs to the user
+        substitution_id = serializer.validated_data.get('substitution')
+        if substitution_id:
+            substitution = substitution_id
+            # Verify the substitution belongs to this user
+            if substitution.requested_by != self.request.user:
+                raise serializers.ValidationError("You can only use your own substitution requests.")
+            if substitution.status != 'ACCEPTED':
+                raise serializers.ValidationError("You can only create leave requests with accepted substitutions.")
+        else:
+            raise serializers.ValidationError("Substitution is required to create a leave request.")
+
         serializer.save(user=self.request.user)
     
     @action(detail=False, methods=['get'])

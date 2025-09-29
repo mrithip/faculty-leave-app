@@ -19,58 +19,96 @@ function HODDashboard() {
 
     const user = JSON.parse(localStorage.getItem('user') || '{}'); // Define user here for immediate use
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('access_token');
-            
-            const leavesResponse = await axios.get('/api/hod/leaves/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setLeaves(leavesResponse.data);
-            
-            const statsResponse = await axios.get('/api/hod/leaves/department_stats/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setStats(statsResponse.data);
-            
-            const staffResponse = await axios.get('/api/hod/leaves/staff_list/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const staffData = staffResponse.data;
-
-            const balanceResponse = await axios.get('/api/hod/leaves/my_balance/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const hodBalance = balanceResponse.data;
-
-            const hodEntry = {
-                id: user.id,
-                username: `${user.username} (HOD)`,
-                email: user.email,
-                leave_balance: hodBalance
-            };
-
-            setStaffList([hodEntry, ...staffData]);
-            
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            if (error.response && error.response.status === 401) {
-                handleLogout();
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Add authentication check for HOD role
     useEffect(() => {
         const token = localStorage.getItem('access_token');
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
         if (!token) {
             navigate('/');
             return;
         }
+
+        if (userData.role !== 'HOD') {
+            navigate('/login');
+            return;
+        }
+
         fetchData();
     }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('access_token');
+
+            // Add individual error handling for each call to avoid one failure breaking everything
+            try {
+                const leavesResponse = await axios.get('/api/hod/leaves/', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setLeaves(leavesResponse.data || []);
+            } catch (apiError) {
+                console.error('Error loading leaves:', apiError);
+                setLeaves([]);
+            }
+
+            try {
+                const statsResponse = await axios.get('/api/hod/leaves/department_stats/', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setStats(statsResponse.data || null);
+            } catch (apiError) {
+                console.error('Error loading stats:', apiError);
+                setStats(null);
+            }
+
+            try {
+                const staffResponse = await axios.get('/api/hod/leaves/staff_list/', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const staffData = staffResponse.data || [];
+                setStaffList([]);
+                // Prepare HOD's own entry for later
+                let hodEntry = null;
+
+                try {
+                    const balanceResponse = await axios.get('/api/hod/leaves/my_balance/', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const hodBalance = balanceResponse.data || null;
+                    hodEntry = {
+                        id: user.id,
+                        username: `${user.username} (HOD)`,
+                        email: user.email,
+                        leave_balance: hodBalance
+                    };
+                } catch (balanceError) {
+                    console.error('Error loading HOD balance:', balanceError);
+                    hodEntry = {
+                        id: user.id,
+                        username: `${user.username} (HOD)`,
+                        email: user.email,
+                        leave_balance: null
+                    };
+                }
+
+                // Combine HOD entry with staff list
+                const combinedStaffList = hodEntry ? [hodEntry, ...staffData] : staffData;
+                setStaffList(combinedStaffList);
+
+            } catch (staffError) {
+                console.error('Error loading staff list:', staffError);
+                setStaffList([]);
+            }
+
+        } catch (error) {
+            console.error('General error in fetchData:', error);
+            // Don't logout on general errors, just log them
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
@@ -78,6 +116,30 @@ function HODDashboard() {
         localStorage.removeItem('user');
         navigate('/');
     };
+
+    // Add role validation fallback
+    const token = localStorage.getItem('access_token');
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token || userData.role !== 'HOD') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center p-6 bg-white rounded-lg shadow-lg max-w-md">
+                    <div className="text-red-500 text-5xl mb-4">🔒</div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
+                    <p className="text-gray-600 mb-4">
+                        You need to be logged in as an HOD to access this dashboard.
+                    </p>
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        Go to Login
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (loading) {
         return (

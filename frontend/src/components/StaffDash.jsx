@@ -7,6 +7,8 @@ import LeaveHistory from './LeaveHistory';
 import LeaveStats from './LeaveStats';
 import StaffLeaveBalanceTable from './StaffLeaveBalanceTable';
 
+import SubstitutionRequests from './SubstitutionRequests';
+
 function StaffDashboard() {
     const [activeTab, setActiveTab] = useState('balance');
     const [leaves, setLeaves] = useState([]);
@@ -95,7 +97,7 @@ function StaffDashboard() {
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-wrap justify-center md:justify-start space-x-2 sm:space-x-4 bg-white rounded-xl p-2 shadow-lg mb-6 overflow-x-auto">
-                    {['calendar', 'balance', 'form', 'history', 'stats'].map(tab => (
+                    {['calendar', 'balance', 'requests', 'form', 'history', 'stats'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -109,11 +111,16 @@ function StaffDashboard() {
                             <span className="mr-2 text-xl">
                                 {tab === 'calendar' && '📅'}
                                 {tab === 'balance' && '💰'}
+                                {tab === 'substitution' && '🔄'}
+                                {tab === 'requests' && '📋'}
                                 {tab === 'form' && '📝'}
                                 {tab === 'history' && '📜'}
                                 {tab === 'stats' && '📊'}
                             </span>
-                            {tab === 'balance' ? 'Leave Balance' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            {tab === 'balance' ? 'Leave Balance' :
+                             tab === 'substitution' ? 'Request Substitution' :
+                             tab === 'requests' ? 'Substitution Requests' :
+                             tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>
                     ))}
                 </div>
@@ -121,6 +128,7 @@ function StaffDashboard() {
                 <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200">
                     {activeTab === 'calendar' && <LeaveCalendar leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'balance' && <StaffLeaveBalanceTable balance={balance} />}
+                    {activeTab === 'requests' && <SubstitutionRequests />}
                     {activeTab === 'form' && <LeaveForm onLeaveSubmit={fetchData} balance={balance} />}
                     {activeTab === 'history' && <LeaveHistory leaves={leaves} onRefresh={fetchData} />}
                     {activeTab === 'stats' && <LeaveStats stats={stats} balance={balance} />}

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import LeaveRequest, LeaveBalance, NightWorkRecord, CompensatoryWork
+from substitution.models import Substitution
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -9,11 +10,26 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     user_department = serializers.CharField(source='user.department', read_only=True)
     user_role = serializers.CharField(source='user.role', read_only=True)
     duration = serializers.CharField(read_only=True)
-    
+    substitution_details = serializers.SerializerMethodField()
+
+    def get_substitution_details(self, obj):
+        """Get substitution details linked to this leave request"""
+        if hasattr(obj, 'substitution') and obj.substitution:
+            sub = obj.substitution
+            return {
+                'substitute_username': sub.requested_to.username,
+                'date': sub.date,
+                'period': sub.period,
+                'time': sub.time,
+                'class_label': sub.class_label,
+                'message': sub.message
+            }
+        return None
+
     class Meta:
         model = LeaveRequest
         fields = '__all__'
-        read_only_fields = ('user', 'status', 'hod_approval', 'principal_approval', 
+        read_only_fields = ('user', 'status', 'hod_approval', 'principal_approval',
                           'hod_approval_date', 'principal_approval_date', 'created_at', 'updated_at')
 
 class LeaveBalanceSerializer(serializers.ModelSerializer):

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'hod',
     'principal',
     'pdfapp',
+    'substitution',
 ]
 
 AUTH_USER_MODEL = 'users.User'

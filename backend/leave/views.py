@@ -8,6 +8,7 @@ from .serializers import (
     NightWorkRecordSerializer, CompensatoryWorkSerializer
 )
 from django.contrib.auth import get_user_model
+from substitution.models import Substitution
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,10 +33,24 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
         return LeaveRequest.objects.none()
     
     def perform_create(self, serializer):
-        if self.request.user.role == 'HOD':
-            serializer.save(user=self.request.user, status='PENDING_PRINCIPAL')
+        user = self.request.user
+        if user.role == 'HOD':
+            serializer.save(user=user, status='PENDING_PRINCIPAL')
+        elif user.role == 'STAFF':
+            # Check if staff has accepted substitution for the leave request
+            data = serializer.validated_data
+            start_date = data['start_date'].date()
+            # Since period is not in leave request, check for any accepted substitution on the start date
+            has_accepted = Substitution.objects.filter(
+                requested_by=user,
+                date=start_date,
+                status=Substitution.ACCEPTED
+            ).exists()
+            if not has_accepted:
+                raise serializers.ValidationError("You must have an accepted substitution request for this date before submitting leave.")
+            serializer.save(user=user)
         else:
-            serializer.save(user=self.request.user)
+            serializer.save(user=user)
     
     @action(detail=True, methods=['post'])
     def approve_hod(self, request, pk=None):
