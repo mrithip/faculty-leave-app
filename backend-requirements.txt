@@ -1,0 +1,50 @@
+# Backend Requirements (Python/Django)
+
+# Core Django
+Django==5.2.5
+
+# Django REST Framework
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+
+# CORS support for frontend-backend communication
+django-cors-headers==4.4.0
+
+# Database (SQLite is built-in with Django)
+# For production, you might want to use PostgreSQL or MySQL
+# psycopg2-binary==2.9.9  # For PostgreSQL
+# mysqlclient==2.2.4      # For MySQL
+
+# PDF generation (for pdfapp)
+reportlab==4.2.2
+
+# Image processing (if needed for any app)
+Pillow==10.4.0
+
+# Environment variables (for production)
+python-decouple==3.8
+
+# Development tools
+black==24.8.0
+flake8==7.1.1
+isort==5.13.2
+
+# Testing
+pytest==8.3.2
+pytest-django==4.9.0
+
+# Documentation (optional)
+sphinx==7.4.7
+sphinx-rtd-theme==2.0.0
+
+# Deployment (optional)
+gunicorn==23.0.0
+whitenoise==6.7.0
+
+# Additional utilities
+requests==2.32.3
+python-dateutil==2.9.0
+
+# Installation:
+# pip install -r backend-requirements.txt
+# For development: python -m venv venv && source venv/bin/activate && pip install -r backend-requirements.txt
